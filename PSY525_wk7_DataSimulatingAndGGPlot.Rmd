@@ -1,0 +1,92 @@
+---
+title: "PSY525_Week 7_Data Sim and GGPlot_Moeller_2020.02.23"
+output: html_notebook
+---
+
+```{r}
+## The assignment:
+
+# Due by the start of class on 2020-02-25.
+# 1. Create your own simulated data set for a real or proposed study.
+  # You may adapt or build upon the examples used in class.
+  # Put the results in an R Markdown (.Rmd) file.
+  # Commit the .Rmd file to your private repo on GitHub and either raise an Issue on GitHub or submit a pull request.
+
+# 2. Plot the results of your simulation using ggplot2 commands.
+  #Make sure that your simulation has the following sub-sections:
+        #Introduction/Motivation
+            #What are you simulating and why? Where do the parameter estimates come from? The literature or your best guess?
+        #Plots
+        #Statistical Analyses
+        #Discussion/Conclusions
+            #What did you discover or demonstrate?
+
+#Please label the R chunks in your R Markdown files
+```
+# Introduction/Motivation
+### This is data I'm simulating for research I'm currently working on. I want to determine whether the implicit motive to aggress is related to deficits in mentalizing. 
+### I predict that greater implicit aggression is negatively related to accuracy in mentalizing tasks. 
+
+## 1. Create the simulated data set
+```{r}
+# Sample size of 1900
+sample_n <- 1900
+
+# Average intercept and slope for Implicit Aggression
+meanIA <- 6 #range of 0-22
+slopeIA <- 1.5 #Amanda's guess
+ImplicitAg <- runif(n=sample_n, min=0, max=22)
+
+library(ggplot2)
+library(dplyr)
+# Shows a histogram of range of Implicit Aggression scores
+hist(ImplicitAg)
+
+MZ_pred <- rep(x=meanIA, n=sample_n)+slopeIA*meanIA
+MZ <- MZ_pred+rnorm(n=sample_n, mean=18, sd=3.5) #Amanda's guesses 
+
+# Put Implicit Aggression and Mentalizing into data frame
+ImpAg_MZ <- data.frame(ImplicitAggress=ImplicitAg, Mentalizing=MZ)
+ImpAg_MZ
+```
+
+## Plots
+```{r}
+# Basic scatter plot
+IA_MZplot1 <- ggplot2::ggplot(data=ImpAg_MZ)+ggplot2::aes(x=ImplicitAg, y=Mentalizing)+ggplot2::geom_point()
+IA_MZplot1
+
+## Using geom_smooth
+Plot2 <- ggplot(ImpAg_MZ, aes(ImplicitAg, Mentalizing))+geom_smooth(model=lm)
+Plot2
+
+# A few more plots below:
+install.packages("hexbin")
+library(hexbin)
+Plot3 <- ggplot(ImpAg_MZ, aes(ImplicitAg, Mentalizing))+geom_hex(model=lm)
+Plot3
+
+Plot4 <- ggplot(ImpAg_MZ, aes(ImplicitAg, Mentalizing))+geom_density2d(model=lm)
+Plot4
+# This would be a cool one to use for location-based data
+
+```
+
+## Statistical Analysis:
+```{r}
+# Cool package for regression summary statistics: mcSummary:
+source('http://psych.colorado.edu/~jclab/R/mcSummaryLm.R')
+
+Model1 <- lm(MZ~ImplicitAg, data=ImpAg_MZ)
+Model1
+mcSummary(Model1)
+
+## Discussion/Conclusion:
+
+# Relationship between Implicit Aggression and Mentalizing in this simulated data set is not significant, t(188)=43.27, p=0.32, 95% CI[-0.04, 0.13]
+
+```
+
+
+
+
